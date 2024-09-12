@@ -1,0 +1,4 @@
+[submodule "src/lib"]
+	path = src/lib
+	url = ../esp_iot_framework
+	branch = main
