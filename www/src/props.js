@@ -8,24 +8,29 @@ export const Properties = [{
         {key: "power", title: "Power", type: "trigger", kind: "Boolean", cmd: PacketType.POWER}
     ],
 }, {
-    key: "motion_config", section: "Motion", collapse: "true", props: [
-        {key: "motion_config.buzzer_enabled", title: "Buzzer Enabled", type: "trigger", kind: "Boolean", cmd: PacketType.MOTION_CONFIG_BUZZER_ENABLED},
-        {key: "motion_config.buzzer_pin", title: "Buzzer Pin", type: "int", kind: "Uint8", cmd: PacketType.MOTION_CONFIG_BUZZER_PIN, min: 0, max: 32},
-
-        {key: "motion_config.led_enabled", title: "LED Enabled", type: "trigger", kind: "Boolean", cmd: PacketType.MOTION_CONFIG_LED_ENABLED},
-        {key: "motion_config.led_r_pin", title: "LED Red Pin", type: "int", kind: "Uint8", cmd: PacketType.MOTION_CONFIG_LED_R_PIN, min: 0, max: 32},
-        {key: "motion_config.led_g_pin", title: "LED Green Pin", type: "int", kind: "Uint8", cmd: PacketType.MOTION_CONFIG_LED_G_PIN, min: 0, max: 32},
-        {key: "motion_config.led_b_pin", title: "LED Blue Pin", type: "int", kind: "Uint8", cmd: PacketType.MOTION_CONFIG_LED_B_PIN, min: 0, max: 32},
-
-        {key: "motion_config.button_enabled", title: "Button Enabled", type: "trigger", kind: "Boolean", cmd: PacketType.MOTION_CONFIG_BUTTON_ENABLED},
-        {key: "motion_config.button_pin", title: "Button Pin", type: "int", kind: "Uint8", cmd: PacketType.MOTION_CONFIG_BUTTON_PIN, min: 0, max: 32},
-    ]
-}, {
     key: "sys_config", section: "Settings", collapse: "true", props: [
-        {key: "sys_config.mdns_name", title: "mDNS Name", type: "text", kind: "FixedString", cmd: PacketType.SYS_CONFIG_MDNS_NAME, maxLength: 32},
+        {type: "title", label: "Motion Sensor"},
+        {key: "motion_config.motion_pin", title: "Pin", type: "int", kind: "Uint8", cmd: PacketType.MOTION_CONFIG_MOTION_PIN, max: 32},
+
+        {type: "title", label: "Buzzer"},
+        {key: "motion_config.buzzer_enabled", title: "Enabled", type: "trigger", kind: "Boolean", cmd: PacketType.MOTION_CONFIG_BUZZER_ENABLED},
+        {key: "motion_config.buzzer_pin", title: "Pin", type: "int", kind: "Uint8", cmd: PacketType.MOTION_CONFIG_BUZZER_PIN, min: 0, max: 32},
+
+        {type: "title", label: "LED"},
+        {key: "motion_config.led_enabled", title: "Enabled", type: "trigger", kind: "Boolean", cmd: PacketType.MOTION_CONFIG_LED_ENABLED},
+        {key: "motion_config.led_r_pin", title: "Red Pin", type: "int", kind: "Uint8", cmd: PacketType.MOTION_CONFIG_LED_R_PIN, min: 0, max: 32},
+        {key: "motion_config.led_g_pin", title: "Green Pin", type: "int", kind: "Uint8", cmd: PacketType.MOTION_CONFIG_LED_G_PIN, min: 0, max: 32},
+        {key: "motion_config.led_b_pin", title: "Blue Pin", type: "int", kind: "Uint8", cmd: PacketType.MOTION_CONFIG_LED_B_PIN, min: 0, max: 32},
+
+        {type: "title", label: "Button"},
+        {key: "motion_config.button_enabled", title: "Enabled", type: "trigger", kind: "Boolean", cmd: PacketType.MOTION_CONFIG_BUTTON_ENABLED},
+        {key: "motion_config.button_pin", title: "Pin", type: "int", kind: "Uint8", cmd: PacketType.MOTION_CONFIG_BUTTON_PIN, min: 0, max: 32},
+
+        {type: "title", label: "mDNS"},
+        {key: "sys_config.mdns_name", title: "Name", type: "text", kind: "FixedString", cmd: PacketType.SYS_CONFIG_MDNS_NAME, maxLength: 32},
 
         {type: "title", label: "WiFi"},
-        {key: "sys_config.wifi_mode", title: "WiFi Mode", type: "select", kind: "Uint8", cmd: PacketType.SYS_CONFIG_WIFI_MODE, list: "wifi_mode"},
+        {key: "sys_config.wifi_mode", title: "Mode", type: "select", kind: "Uint8", cmd: PacketType.SYS_CONFIG_WIFI_MODE, list: "wifi_mode"},
         {key: "sys_config.wifi_ssid", title: "SSID", type: "text", kind: "FixedString", cmd: PacketType.SYS_CONFIG_WIFI_SSID, maxLength: 32},
 
         {type: "title", label: "WiFi Extra"},

@@ -8,12 +8,16 @@
 inline std::map<PropertyEnum, AppPropertyMeta> PropertyMetaMap = {
         define_meta_entry(PropertyEnum::POWER, &Config::power),
 
+        define_meta_entry(PropertyEnum::MOTION_CONFIG_MOTION_PIN, &Config::motion_config, &MotionConfig::motion_pin),
+
         define_meta_entry(PropertyEnum::MOTION_CONFIG_BUZZER_ENABLED, &Config::motion_config, &MotionConfig::buzzer_enabled),
         define_meta_entry(PropertyEnum::MOTION_CONFIG_BUZZER_PIN, &Config::motion_config, &MotionConfig::buzzer_pin),
+
         define_meta_entry(PropertyEnum::MOTION_CONFIG_LED_ENABLED, &Config::motion_config, &MotionConfig::led_enabled),
         define_meta_entry(PropertyEnum::MOTION_CONFIG_LED_R_PIN, &Config::motion_config, &MotionConfig::led_r_pin),
         define_meta_entry(PropertyEnum::MOTION_CONFIG_LED_G_PIN, &Config::motion_config, &MotionConfig::led_g_pin),
         define_meta_entry(PropertyEnum::MOTION_CONFIG_LED_B_PIN, &Config::motion_config, &MotionConfig::led_b_pin),
+
         define_meta_entry(PropertyEnum::MOTION_CONFIG_BUTTON_ENABLED, &Config::motion_config, &MotionConfig::button_enabled),
         define_meta_entry(PropertyEnum::MOTION_CONFIG_BUTTON_PIN, &Config::motion_config, &MotionConfig::button_pin),
 

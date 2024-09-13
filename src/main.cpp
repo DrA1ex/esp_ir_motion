@@ -12,12 +12,12 @@ void setup() {
     delay(2000);
 #endif
 
-    analogWriteResolution(8);
+    analogWriteResolution(PWM_RESOLUTION);
 
 #ifdef ARDUINO_ARCH_ESP8266
-    analogWriteFreq(22000);
+    analogWriteFreq(PWM_FREQUENCY);
 #else
-    analogWriteFrequency(22000);
+    analogWriteFrequency(PWM_FREQUENCY);
 #endif
 
     D_PRINT("Starting application...");

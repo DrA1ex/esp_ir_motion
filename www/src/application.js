@@ -42,7 +42,13 @@ export class Application extends ApplicationBase {
                 new_url = location.href;
             }
 
-            setTimeout(() => window.location = new_url, 3000);
+            setTimeout(() => {
+                if (window.location === new_url) {
+                    window.location.reload();
+                } else {
+                    window.location = new_url;
+                }
+            }, 3000);
         } catch (err) {
             console.log("Unable to send restart signal", err);
             sender.setAttribute("data-saving", false);

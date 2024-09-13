@@ -3,11 +3,13 @@
 Buzzer::Buzzer(uint8_t pin, Note *melody, uint16_t length) : _pin(pin), _melody(melody), _melody_length(length) {}
 
 void Buzzer::begin() {
+    _initialized = true;
+
     pinMode(_pin, OUTPUT);
 }
 
 void Buzzer::play() {
-    if (_playing) return;
+    if (!_initialized || _playing) return;
 
     _start_time = millis();
     _playing = true;
@@ -15,14 +17,14 @@ void Buzzer::play() {
 }
 
 void Buzzer::stop() {
-    if (!_playing) return;
+    if (!_initialized || !_playing) return;
 
     _playing = false;
     noTone(_pin);
 }
 
 void Buzzer::tick(unsigned long time) {
-    if (!_playing) return;
+    if (!_initialized || !_playing) return;
     if (time - _last_tone_update < BUZZER_TONE_INTERVAL) return;
 
     _last_tone_update = time;

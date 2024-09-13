@@ -12,8 +12,6 @@ MotionControl::MotionControl(const Config &config) : _config(config) {}
 void MotionControl::begin() {
     auto motion_cfg = _config.motion_config;
 
-    pinMode(motion_cfg.motion_pin, INPUT);
-
     _buzzer = std::make_unique<Buzzer>(
             motion_cfg.buzzer_pin, Melody, sizeof(Melody) / sizeof(Melody[0]));
 
@@ -21,10 +19,12 @@ void MotionControl::begin() {
                                  motion_cfg.led_g_pin,
                                  motion_cfg.led_b_pin);
 
-    if (motion_cfg.led_enabled) _led->begin();
-
     _btn = std::make_unique<Button>(motion_cfg.button_pin);
 
+    pinMode(motion_cfg.motion_pin, INPUT);
+
+    if (motion_cfg.led_enabled) _led->begin();
+    if (motion_cfg.buzzer_enabled) _buzzer->begin();
     if (motion_cfg.button_enabled) {
         _btn->begin();
         _btn->set_on_click(std::bind(&MotionControl::_button_clicked, this, std::placeholders::_1));

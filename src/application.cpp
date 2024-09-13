@@ -64,6 +64,8 @@ void Application::event_loop() {
 
         case ApplicationState::READY:
             _wifi_manager->handle_connection();
+            ArduinoOTA.handle();
+
             if (_dns_server) _dns_server->processNextRequest();
 
             _timer.handle_timers();

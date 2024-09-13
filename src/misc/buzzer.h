@@ -14,6 +14,7 @@ class Buzzer {
     Note *_melody;
     uint16_t _melody_length;
 
+    bool _initialized = false;
     bool _playing = false;
     unsigned long _start_time = 0;
     size_t _current_note = 0;
