@@ -15,6 +15,8 @@ void Application::begin() {
     _ws_server = std::make_unique<WebSocketServer<__int::AppType>>(*this, *_packet_handler);
     _mqtt_server = std::make_unique<MqttServer<__int::AppType>>(*this);
 
+    _motion_control = std::make_unique<MotionControl>(config());
+
     event_property_changed().subscribe(this, [this](auto sender, auto type, auto) {
         if (sender != this) _handle_property_change(type);
     });
@@ -52,6 +54,8 @@ void Application::event_loop() {
                                     sys_config().mqtt_user, sys_config().mqtt_password);
             }
 
+            _motion_control->begin();
+
             D_PRINT("ESP Ready");
             _after_init();
 
@@ -66,6 +70,8 @@ void Application::event_loop() {
 
             _ws_server->handle_incoming_data();
             _mqtt_server->handle_connection();
+
+            _motion_control->tick();
             break;
     }
 }

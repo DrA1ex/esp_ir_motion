@@ -2,7 +2,7 @@
 
 #include "application.h"
 
-Application *app;
+Application *App;
 
 void setup() {
 #ifdef DEBUG
@@ -12,16 +12,19 @@ void setup() {
     delay(2000);
 #endif
 
+    analogWriteResolution(8);
+    analogWriteFrequency(22000);
+
     D_PRINT("Starting application...");
 
     if (!LittleFS.begin()) {
         D_PRINT("Unable to initialize FS");
     }
 
-    app = new Application(&LittleFS);
-    app->begin();
+    App = new Application(&LittleFS);
+    App->begin();
 }
 
 void loop() {
-    app->event_loop();
+    App->event_loop();
 }

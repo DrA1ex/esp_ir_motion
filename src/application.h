@@ -12,6 +12,7 @@
 #include "type.h"
 #include "metadata.h"
 #include "constants.h"
+#include "misc/motion.h"
 
 namespace __int {
     using AppType = AbstractApplication<Config, AppPropertyMeta>;
@@ -38,6 +39,8 @@ class Application : public __int::AppType {
 
     ApplicationState _state = ApplicationState::UNINITIALIZED;
     std::unique_ptr<DNSServer> _dns_server = nullptr;
+
+    std::unique_ptr<MotionControl> _motion_control = nullptr;
 
 public:
     explicit Application(FS *fs);
