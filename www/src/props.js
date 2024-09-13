@@ -1,9 +1,26 @@
+import * as CommonUtils from "./lib/utils/common.js"
 import {PacketType} from "./config.js";
 
 /**
  * @type {PropertiesConfig}
  */
 export const Properties = [{
+    key: "status", section: "Status", props: [
+        {
+            key: "status.state", type: "label", kind: "Uint8", cmd: PacketType.MOTION_STATE,
+            transform: (value) => {
+                return ["IDLE", "PANIC", "SILENCE", "PAUSED"][value] ?? "UNKNOWN";
+            }
+        }, {
+            key: "status.silence_left", type: "label", kind: "Uint32", cmd: PacketType.MOTION_SILENCE_TIME_LEFT, visibleIf: "status.silence_left",
+            transform: (value) => {
+                if (!value) return null;
+
+                return `Left: ${CommonUtils.formatTimeSpan(value)}`;
+            }
+        },
+    ]
+}, {
     key: "general", section: "General", props: [
         {key: "power", title: "Power", type: "trigger", kind: "Boolean", cmd: PacketType.POWER},
 

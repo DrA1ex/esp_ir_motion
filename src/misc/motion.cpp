@@ -2,6 +2,7 @@
 
 #include "lib/debug.h"
 
+//TODO: Configurable
 Note Melody[] = {
         {650,  250},
         {1350, 250},
@@ -32,39 +33,44 @@ void MotionControl::begin() {
     }
 
     D_PRINT("Motion Control: Initialized");
+    _change_state(MotionState::IDLE);
 }
 
 void MotionControl::_button_clicked(uint8_t count) {
     D_PRINTF("Motion Control: Button clicked: %i\r\n", count);
+    if (_state == MotionState::PAUSED) return;
 
     if (count <= _silence_level) return;
 
     _silence_time = count * _config.sys_config.silent_time;
     _silence_level = count;
 
-    _change_state(State::SILENT);
+    _change_state(MotionState::SILENT);
+    event().publish(this, MotionEventType::SILENCE_TIME_LEFT_CHANGED);
 }
 
 void MotionControl::_button_hold(uint8_t) {
-    if (_state != State::SILENT) return;
+    if (_state != MotionState::SILENT) return;
 
     D_PRINT("Motion Control: Button reset");
-    _change_state(State::IDLE);
+    _change_state(MotionState::IDLE);
 }
-void MotionControl::_change_state(State next_state) {
+void MotionControl::_change_state(MotionState next_state) {
     if (next_state == _state) return;
 
-    if (_state == State::PANIC) {
+    if (_state == MotionState::PANIC) {
         _buzzer->stop();
-    } else if (_state == State::SILENT) {
+    } else if (_state == MotionState::SILENT) {
         _silence_time = 0;
         _silence_level = 0;
+
+        event().publish(this, MotionEventType::SILENCE_TIME_LEFT_CHANGED);
     }
 
-    if (next_state == State::PANIC) {
+    if (next_state == MotionState::PANIC) {
         _buzzer->play();
         _led->flash();
-    } else if (next_state == State::SILENT) {
+    } else if (next_state == MotionState::SILENT) {
         _led->set_color(0, 3, 0);
         _led->flash(LED_BLINK_COOL_DOWN_DURATION);
     } else {
@@ -75,27 +81,32 @@ void MotionControl::_change_state(State next_state) {
 
     _state = next_state;
     _last_time = millis();
+
+    event().publish(this, MotionEventType::STATE_CHANGED);
 }
 void MotionControl::_state_machine(unsigned long time) {
     auto delta = time - _last_time;
 
     switch (_state) {
-        case State::IDLE:
+        case MotionState::IDLE:
             if (digitalRead(_config.motion_config.motion_pin) == HIGH) {
-                _change_state(State::PANIC);
+                _change_state(MotionState::PANIC);
             }
             break;
 
-        case State::PANIC:
+        case MotionState::PANIC:
             if (delta >= _config.sys_config.buzz_time && digitalRead(_config.motion_config.motion_pin) == LOW) {
-                _change_state(State::IDLE);
+                _change_state(MotionState::IDLE);
             }
             break;
 
-        case State::SILENT:
+        case MotionState::SILENT:
             if (delta >= _silence_time) {
-                _change_state(State::IDLE);
+                _change_state(MotionState::IDLE);
             }
+            break;
+
+        case MotionState::PAUSED:
             break;
     }
 }
@@ -104,8 +115,9 @@ void MotionControl::tick() {
     auto time = millis();
 
     if (!_config.power) {
-        _change_state(State::IDLE);
-        return;
+        _change_state(MotionState::PAUSED);
+    } else if (_state == MotionState::PAUSED) {
+        _change_state(MotionState::IDLE);
     }
 
     if (_config.motion_config.button_enabled) _btn->handle();
@@ -113,7 +125,7 @@ void MotionControl::tick() {
 
     auto delta = time - _last_time;
     switch (_state) {
-        case State::IDLE:
+        case MotionState::IDLE:
             if (delta >= _config.sys_config.idle_flash_time) {
                 _last_time = time;
 
@@ -122,7 +134,7 @@ void MotionControl::tick() {
             }
             break;
 
-        case State::PANIC:
+        case MotionState::PANIC:
             if ((delta / _config.sys_config.panic_color_time) % 2) {
                 _led->set_color(255, 0, 0);
             } else {
@@ -130,7 +142,7 @@ void MotionControl::tick() {
             }
             break;
 
-        case State::SILENT: {
+        case MotionState::SILENT: {
             auto level = (int) ((_silence_time - delta - 1) / _config.sys_config.silent_time) + 1;
 
             if (!_led->active() || _led->blink_count() != level) {
@@ -140,6 +152,8 @@ void MotionControl::tick() {
             }
         }
             break;
+        case MotionState::PAUSED:
+            break;
     }
 
     if (_config.motion_config.buzzer_enabled) _buzzer->tick(time);
@@ -148,13 +162,15 @@ void MotionControl::tick() {
 
 void MotionControl::silence_add() {
     D_PRINT("Motion Control: Add Silence");
-    _change_state(State::SILENT);
+    _change_state(MotionState::SILENT);
 
     _silence_level += 1;
     _silence_time = _silence_level * _config.sys_config.silent_time;
+
+    event().publish(this, MotionEventType::SILENCE_TIME_LEFT_CHANGED);
 }
 
 void MotionControl::silence_reset() {
     D_PRINT("Motion Control: Reset Silence");
-    _change_state(State::IDLE);
+    _change_state(MotionState::IDLE);
 }

@@ -11,19 +11,19 @@
 #include "misc/buzzer.h"
 #include "sys_constants.h"
 
-MAKE_ENUM(State, uint8_t,
-          IDLE, 0,
-          PANIC, 1,
-          SILENT, 2
-)
+enum class MotionEventType {
+    STATE_CHANGED,
+    SILENCE_TIME_LEFT_CHANGED,
+};
 
 class MotionControl {
+    EventTopic<MotionEventType> _event;
+
     std::unique_ptr<Button> _btn = nullptr;
     std::unique_ptr<Buzzer> _buzzer = nullptr;
     std::unique_ptr<Led> _led = nullptr;
 
     const Config &_config;
-
 public:
     explicit MotionControl(const Config &config);
 
@@ -33,8 +33,13 @@ public:
     void silence_add();
     void silence_reset();
 
+    inline MotionState state() { return _state; }
+    inline unsigned long silence_time_left() { return _silence_time; }
+
+    inline EventTopic<MotionEventType> &event() { return _event; };
+
 private:
-    State _state = State::IDLE;
+    MotionState _state = MotionState::PAUSED;
     unsigned long _last_time = 0;
 
     unsigned long _silence_time = 0;
@@ -43,7 +48,7 @@ private:
     void _button_clicked(uint8_t count);
     void _button_hold(uint8_t);
 
-    void _change_state(State next_state);
+    void _change_state(MotionState next_state);
 
     void _state_machine(unsigned long time);
 };

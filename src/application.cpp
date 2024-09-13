@@ -20,6 +20,21 @@ void Application::begin() {
     event_property_changed().subscribe(this, [this](auto sender, auto type, auto) {
         if (sender != this) _handle_property_change(type);
     });
+
+    _timer.add_interval([this](auto) {
+        _ws_server->notify_clients(-1, PropertyEnum::MOTION_STATE, motion_control().state());
+        _ws_server->notify_clients(-1, PropertyEnum::MOTION_SILENCE_TIME_LEFT,
+                                   motion_control().silence_time_left());
+    }, 10000);
+
+    _motion_control->event().subscribe(this, [this](auto, auto type, auto) {
+        switch (type) {
+            case MotionEventType::STATE_CHANGED:
+                return _ws_server->notify_clients(-1, PropertyEnum::MOTION_STATE, motion_control().state());
+            case MotionEventType::SILENCE_TIME_LEFT_CHANGED:
+                return _ws_server->notify_clients(-1, PropertyEnum::MOTION_SILENCE_TIME_LEFT, motion_control().silence_time_left());
+        }
+    });
 }
 
 void Application::update() {
@@ -122,6 +137,14 @@ Response AppPacketHandler::handle_packet_data(uint32_t client_id, const Packet<P
     } else if (packet.header->type == PropertyEnum::SILENCE_RESET) {
         app.motion_control().silence_reset();
         return Response::ok();
+    } else if (packet.header->type == PropertyEnum::GET_STATE) {
+        static AppState state_obj;
+        state_obj = {
+                app.motion_control().state(),
+                app.motion_control().silence_time_left(),
+        };
+
+        return protocol().serialize(state_obj);
     }
 
     return PacketHandler::handle_packet_data(client_id, packet);

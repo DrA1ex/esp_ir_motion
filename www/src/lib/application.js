@@ -106,7 +106,22 @@ export class ApplicationBase extends EventEmitter {
 
         this.subscribe(this, this.Event.Notification, (_, {key, value}) => {
             this.config.setProperty(key, value, false);
-            this.propertyMeta[key].control.setValue(this.config.getProperty(key));
+
+            const {control, title, prop} = this.propertyMeta[key];
+            if (prop.type === "skip") return;
+
+            const propValue = this.config.getProperty(key);
+            if ("setValue" in control) {
+                control.setValue(propValue);
+            } else if ("setText" in control) {
+                control.setText(propValue);
+            }
+
+            if (prop.visibleIf) {
+                const visible = !!this.config.getProperty(prop.visibleIf);
+                control.setVisibility(visible);
+                title?.setVisibility(true);
+            }
         });
     }
 
@@ -178,10 +193,12 @@ export class ApplicationBase extends EventEmitter {
                 if (prop.visibleIf) {
                     if (config.getProperty(prop.visibleIf)) {
                         control.setVisibility(true);
-                        title.setVisibility(true);
+                        title?.setVisibility(true);
                     } else {
                         control.setVisibility(false);
-                        title.setVisibility(false);
+                        title?.setVisibility(false);
+
+                        control.setAttribute("data-loading", false);
                         continue;
                     }
                 }
@@ -195,13 +212,13 @@ export class ApplicationBase extends EventEmitter {
                 } else if ("setValue" in control) {
                     const value = config.getProperty(prop.key);
                     control.setValue(value);
+                } else if (prop.type === "label") {
+                    const value = config.getProperty(prop.key);
+                    control.setText(value);
                 }
 
-                if (control.getAttribute("data-loading") === "true") {
-                    if ("setOnChange" in control) control.setOnChange((value) => config.setProperty(prop.key, value));
-
-                    control.setAttribute("data-loading", false);
-                }
+                control.setAttribute("data-loading", false);
+                if ("setOnChange" in control) control.setOnChange((value) => config.setProperty(prop.key, value));
             }
         }
     }
@@ -326,6 +343,11 @@ export class ApplicationBase extends EventEmitter {
                     case "title":
                         control = new TextControl(document.createElement("h4"));
                         control.setText(prop.label);
+                        break;
+
+                    case "label":
+                        control = new TextControl(document.createElement("h4"));
+                        control.addClass("label");
                         break;
 
                     case "separator":

@@ -41,6 +41,18 @@ MAKE_ENUM(PropertyEnum, uint8_t,
           SYS_CONFIG_SILENT_TIME, 0x6B,
           SYS_CONFIG_IDLE_FLASH_TIME, 0x6C,
           SYS_CONFIG_PANIC_COLOR_TIME, 0x6D,
+
+          MOTION_STATE, 0x80,
+          MOTION_SILENCE_TIME_LEFT, 0x81,
+
+          GET_STATE, 0xa0,
+)
+
+MAKE_ENUM(MotionState, uint8_t,
+          IDLE, 0,
+          PANIC, 1,
+          SILENT, 2,
+          PAUSED, 3,
 )
 
 typedef PropertyMetadata<PropertyEnum> AppPropertyMeta;
@@ -88,4 +100,10 @@ struct __attribute((packed)) Config {
 
     MotionConfig motion_config{};
     SysConfig sys_config{};
+};
+
+
+struct __attribute((packed)) AppState {
+    MotionState state;
+    uint32_t silence_time_left;
 };

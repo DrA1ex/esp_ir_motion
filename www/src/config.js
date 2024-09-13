@@ -34,6 +34,11 @@ export const PacketType = {
     SYS_CONFIG_SILENT_TIME: 0x6B,
     SYS_CONFIG_IDLE_FLASH_TIME: 0x6C,
     SYS_CONFIG_PANIC_COLOR_TIME: 0x6D,
+
+    MOTION_STATE: 0x80,
+    MOTION_SILENCE_TIME_LEFT: 0x81,
+
+    GET_STATE: 0xa0,
 }
 
 const CfgStrLength = 32;
@@ -42,6 +47,8 @@ export class Config extends AppConfigBase {
     power;
     motion_config;
     sys_config;
+
+    status;
 
     constructor(props) {
         super(props);
@@ -52,6 +59,14 @@ export class Config extends AppConfigBase {
         ]
     }
 
+    async load(ws) {
+        const [_, statusPacket] = await Promise.all([
+            super.load(ws),
+            ws.request(PacketType.GET_STATE),
+        ]);
+
+        this.status = this.#parseStatus(statusPacket.parser());
+    }
 
     parse(parser) {
         this.power = parser.readBoolean();
@@ -94,6 +109,13 @@ export class Config extends AppConfigBase {
             silent_time: parser.readUint32(),
             idle_flash_time: parser.readUint16(),
             panic_color_time: parser.readUint16(),
+        };
+    }
+
+    #parseStatus(parser) {
+        return {
+            state: parser.readUint8(),
+            silence_left: parser.readUint32()
         };
     }
 }
