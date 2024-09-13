@@ -5,7 +5,11 @@ import {PacketType} from "./config.js";
  */
 export const Properties = [{
     key: "general", section: "General", props: [
-        {key: "power", title: "Power", type: "trigger", kind: "Boolean", cmd: PacketType.POWER}
+        {key: "power", title: "Power", type: "trigger", kind: "Boolean", cmd: PacketType.POWER},
+
+        {type: "title", label: "Actions", extra: {m_top: true}},
+        {key: "silent_add", type: "button", label: "Silence", cmd: PacketType.SILENCE},
+        {key: "silent_reset", type: "button", label: "Reset", cmd: PacketType.SILENCE_RESET}
     ],
 }, {
     key: "sys_config", section: "Settings", collapse: "true", props: [

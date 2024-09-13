@@ -30,6 +30,9 @@ public:
     void begin();
     void tick();
 
+    void silence_add();
+    void silence_reset();
+
 private:
     State _state = State::IDLE;
     unsigned long _last_time = 0;

@@ -12,6 +12,9 @@
 MAKE_ENUM(PropertyEnum, uint8_t,
           POWER, 0x00,
 
+          SILENCE, 0x10,
+          SILENCE_RESET, 0x11,
+
           MOTION_CONFIG_BUZZER_ENABLED, 0x20,
           MOTION_CONFIG_BUZZER_PIN, 0x21,
           MOTION_CONFIG_LED_ENABLED, 0x22,

@@ -145,3 +145,16 @@ void MotionControl::tick() {
     if (_config.motion_config.buzzer_enabled) _buzzer->tick(time);
     if (_config.motion_config.led_enabled) _led->tick(time);
 }
+
+void MotionControl::silence_add() {
+    D_PRINT("Motion Control: Add Silence");
+    _change_state(State::SILENT);
+
+    _silence_level += 1;
+    _silence_time = _silence_level * _config.sys_config.silent_time;
+}
+
+void MotionControl::silence_reset() {
+    D_PRINT("Motion Control: Reset Silence");
+    _change_state(State::IDLE);
+}

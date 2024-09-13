@@ -191,7 +191,9 @@ export class ApplicationBase extends EventEmitter {
                     control.setOptions(this.config.lists[prop.list].map(v => ({key: v.code, label: v.name})));
                 }
 
-                if (prop.type !== "button") {
+                if (control instanceof ButtonControl && prop.cmd) {
+                    control.setOnClick(() => this.#sendCommand(prop));
+                } else if (control instanceof InputControl) {
                     const value = config.getProperty(prop.key);
                     control.setValue(value);
                 }
@@ -406,6 +408,24 @@ export class ApplicationBase extends EventEmitter {
         titleElement.setText(title);
 
         return titleElement;
+    }
+
+    async #sendCommand(prop) {
+        if (prop.__busy) return;
+
+        const {control} = this.propertyMeta[prop.key];
+
+        prop.__busy = true;
+        control.setAttribute("data-saving", true);
+
+        try {
+            await this.#ws.request(prop.cmd);
+        } catch (e) {
+            console.error("Unable to send command", e);
+        } finally {
+            prop.__busy = false;
+            control.setAttribute("data-saving", false);
+        }
     }
 
     async #sendChangesImpl(config, prop, value, oldValue) {

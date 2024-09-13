@@ -6,6 +6,9 @@ export const DEFAULT_ADDRESS = "esp_motion.local";
 export const PacketType = {
     POWER: 0x00,
 
+    SILENCE: 0x10,
+    SILENCE_RESET: 0x11,
+
     MOTION_CONFIG_BUZZER_ENABLED: 0x20,
     MOTION_CONFIG_BUZZER_PIN: 0x21,
     MOTION_CONFIG_LED_ENABLED: 0x22,

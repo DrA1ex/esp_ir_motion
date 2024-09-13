@@ -18,6 +18,8 @@ namespace __int {
     using AppType = AbstractApplication<Config, AppPropertyMeta>;
 }
 
+class AppPacketHandler;
+
 class Application : public __int::AppType {
     enum class ApplicationState {
         UNINITIALIZED,
@@ -28,7 +30,7 @@ class Application : public __int::AppType {
 
     std::unique_ptr<WifiManager> _wifi_manager = nullptr;
 
-    std::unique_ptr<PacketHandler<__int::AppType>> _packet_handler = nullptr;
+    std::unique_ptr<AppPacketHandler> _packet_handler = nullptr;
     std::unique_ptr<WebSocketServer<__int::AppType>> _ws_server = nullptr;
     std::unique_ptr<MqttServer<__int::AppType>> _mqtt_server = nullptr;
 
@@ -48,6 +50,8 @@ public:
     inline Config &config() override { return _config_storage.get(); }
     inline SysConfig &sys_config() { return config().sys_config; }
 
+    inline MotionControl &motion_control() { return *_motion_control; }
+
     void begin();
     void event_loop();
 
@@ -58,4 +62,11 @@ public:
 private:
     void _after_init();
     void _handle_property_change(PropertyEnum type);
+};
+
+class AppPacketHandler : public PacketHandler<__int::AppType> {
+public:
+    explicit AppPacketHandler(Application &app) : PacketHandler(app) {}
+
+    Response handle_packet_data(uint32_t client_id, const Packet<PacketHandler<Application>::PacketEnumT> &packet) override;
 };

@@ -11,7 +11,7 @@ void Application::begin() {
     _config_storage.begin(_fs);
 
     _wifi_manager = std::make_unique<WifiManager>(sys_config().wifi_ssid, sys_config().wifi_password);
-    _packet_handler = std::make_unique<PacketHandler<__int::AppType>>(*this);
+    _packet_handler = std::make_unique<AppPacketHandler>(*this);
     _ws_server = std::make_unique<WebSocketServer<__int::AppType>>(*this, *_packet_handler);
     _mqtt_server = std::make_unique<MqttServer<__int::AppType>>(*this);
 
@@ -110,4 +110,19 @@ void Application::restart() {
 
 void Application::_handle_property_change(PropertyEnum type) {
     update();
+}
+
+
+Response AppPacketHandler::handle_packet_data(uint32_t client_id, const Packet<PacketHandler<Application>::PacketEnumT> &packet) {
+    auto &app = (Application &) this->app();
+
+    if (packet.header->type == PropertyEnum::SILENCE) {
+        app.motion_control().silence_add();
+        return Response::ok();
+    } else if (packet.header->type == PropertyEnum::SILENCE_RESET) {
+        app.motion_control().silence_reset();
+        return Response::ok();
+    }
+
+    return PacketHandler::handle_packet_data(client_id, packet);
 }
