@@ -80,7 +80,7 @@ struct __attribute((packed)) SysConfig {
 };
 
 struct __attribute((packed)) Config {
-    bool power = false;
+    bool power = true;
 
     MotionConfig motion_config{};
     SysConfig sys_config{};

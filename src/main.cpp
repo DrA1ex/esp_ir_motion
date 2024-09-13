@@ -13,7 +13,12 @@ void setup() {
 #endif
 
     analogWriteResolution(8);
+
+#ifdef ARDUINO_ARCH_ESP8266
+    analogWriteFreq(22000);
+#else
     analogWriteFrequency(22000);
+#endif
 
     D_PRINT("Starting application...");
 
