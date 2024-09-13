@@ -186,14 +186,13 @@ export class ApplicationBase extends EventEmitter {
                     }
                 }
 
-                // TODO:
                 if (prop.type === "select") {
                     control.setOptions(this.config.lists[prop.list].map(v => ({key: v.code, label: v.name})));
                 }
 
                 if (control instanceof ButtonControl && prop.cmd) {
                     control.setOnClick(() => this.#sendCommand(prop));
-                } else if (control instanceof InputControl) {
+                } else if ("setValue" in control) {
                     const value = config.getProperty(prop.key);
                     control.setValue(value);
                 }

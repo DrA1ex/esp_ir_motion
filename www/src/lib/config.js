@@ -65,7 +65,7 @@ export class AppConfigBase extends EventEmitter {
         const {data} = await ws.request(this.cmd);
 
         const parser = new BinaryParser(data.buffer, data.byteOffset);
-        this.parse(parser);
+        await this.parse(parser);
 
         this.emitEvent(AppConfigBase.Event.Loaded);
     }
