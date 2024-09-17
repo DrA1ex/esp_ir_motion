@@ -8,6 +8,7 @@ export const PacketType = {
 
     SILENCE: 0x10,
     SILENCE_RESET: 0x11,
+    TEST: 0x12,
 
     MOTION_CONFIG_BUZZER_ENABLED: 0x20,
     MOTION_CONFIG_BUZZER_PIN: 0x21,

@@ -161,6 +161,8 @@ void MotionControl::tick() {
 }
 
 void MotionControl::silence_add() {
+    if (_state == MotionState::PAUSED) return;
+
     D_PRINT("Motion Control: Add Silence");
     _change_state(MotionState::SILENT);
 
@@ -171,6 +173,13 @@ void MotionControl::silence_add() {
 }
 
 void MotionControl::silence_reset() {
+    if (_state == MotionState::PAUSED) return;
+
     D_PRINT("Motion Control: Reset Silence");
     _change_state(MotionState::IDLE);
+}
+
+void MotionControl::alarm_test() {
+    D_PRINT("Motion Control: Alarm Test");
+    _change_state(MotionState::PANIC);
 }

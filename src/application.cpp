@@ -137,6 +137,9 @@ Response AppPacketHandler::handle_packet_data(uint32_t client_id, const Packet<P
     } else if (packet.header->type == PropertyEnum::SILENCE_RESET) {
         app.motion_control().silence_reset();
         return Response::ok();
+    } else if (packet.header->type == PropertyEnum::TEST) {
+        app.motion_control().alarm_test();
+        return Response::ok();
     } else if (packet.header->type == PropertyEnum::GET_STATE) {
         static AppState state_obj;
         state_obj = {

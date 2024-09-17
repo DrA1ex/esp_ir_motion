@@ -32,6 +32,7 @@ public:
 
     void silence_add();
     void silence_reset();
+    void alarm_test();
 
     inline MotionState state() { return _state; }
     inline unsigned long silence_time_left() { return _silence_time; }

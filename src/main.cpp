@@ -7,7 +7,11 @@ Application *App;
 void setup() {
 #ifdef DEBUG
     Serial.begin(115200);
-    while (!Serial) delay(1);
+
+    {
+        auto start_t = millis();
+        while (!Serial && (millis() - start_t) < 15000ul) delay(1);
+    }
 
     delay(2000);
 #endif

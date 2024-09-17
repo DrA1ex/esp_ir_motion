@@ -26,7 +26,8 @@ export const Properties = [{
 
         {type: "title", label: "Actions", extra: {m_top: true}},
         {key: "silent_add", type: "button", label: "Silence", cmd: PacketType.SILENCE},
-        {key: "silent_reset", type: "button", label: "Reset", cmd: PacketType.SILENCE_RESET}
+        {key: "silent_reset", type: "button", label: "Reset", cmd: PacketType.SILENCE_RESET},
+        {key: "test", type: "button", label: "Test", cmd: PacketType.TEST}
     ],
 }, {
     key: "sys_config", section: "Settings", collapse: "true", props: [
