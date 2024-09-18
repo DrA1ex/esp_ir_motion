@@ -1,38 +1,29 @@
 #pragma once
 
 #include <DNSServer.h>
-#include <lib/base/application.h>
 #include <lib/misc/storage.h>
 #include <lib/network/wifi.h>
 #include <lib/network/web.h>
-#include <lib/network/protocol/packet_handler.h>
 #include <lib/network/server/ws.h>
 #include <lib/network/server/mqtt.h>
 
 #include "type.h"
-#include "metadata.h"
 #include "constants.h"
+#include "metadata.h"
 #include "misc/motion.h"
 
-namespace __int {
-    using AppType = AbstractApplication<Config, AppPropertyMeta>;
-}
+enum class ApplicationState {
+    UNINITIALIZED,
+    WIFI_CONNECT,
+    INITIALIZING,
+    READY,
+};
 
-class AppPacketHandler;
-
-class Application : public __int::AppType {
-    enum class ApplicationState {
-        UNINITIALIZED,
-        WIFI_CONNECT,
-        INITIALIZING,
-        READY,
-    };
-
+class Application {
     std::unique_ptr<WifiManager> _wifi_manager = nullptr;
 
-    std::unique_ptr<AppPacketHandler> _packet_handler = nullptr;
-    std::unique_ptr<WebSocketServer<__int::AppType>> _ws_server = nullptr;
-    std::unique_ptr<MqttServer<__int::AppType>> _mqtt_server = nullptr;
+    std::unique_ptr<WebSocketServer<PropertyEnum>> _ws_server = nullptr;
+    std::unique_ptr<MqttServer> _mqtt_server = nullptr;
 
     FS *_fs;
     Timer _timer;
@@ -44,10 +35,12 @@ class Application : public __int::AppType {
 
     std::unique_ptr<MotionControl> _motion_control = nullptr;
 
+    std::unique_ptr<ConfigMetadata> _metadata;
+
 public:
     explicit Application(FS *fs);
 
-    inline Config &config() override { return _config_storage.get(); }
+    inline Config &config() { return _config_storage.get(); }
     inline SysConfig &sys_config() { return config().sys_config; }
 
     inline MotionControl &motion_control() { return *_motion_control; }
@@ -56,17 +49,9 @@ public:
     void event_loop();
 
     void update();
-
-    void restart() override;
+    void restart();
 
 private:
     void _after_init();
-    void _handle_property_change(PropertyEnum type);
-};
-
-class AppPacketHandler : public PacketHandler<__int::AppType> {
-public:
-    explicit AppPacketHandler(Application &app) : PacketHandler(app) {}
-
-    Response handle_packet_data(uint32_t client_id, const Packet<PacketHandler<Application>::PacketEnumT> &packet) override;
+    void _handle_motion_sensor_event(MotionEventType type);
 };

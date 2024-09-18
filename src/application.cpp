@@ -4,37 +4,60 @@
 #include <LittleFS.h>
 #include <lib/utils/qr.h>
 
-Application::Application(FS *fs) : __int::AppType(PropertyMetaMap),
-                                   _fs(fs), _config_storage(_timer, "config") {}
+Application::Application(FS *fs) : _fs(fs), _config_storage(_timer, "config") {}
 
 void Application::begin() {
     _config_storage.begin(_fs);
 
     _wifi_manager = std::make_unique<WifiManager>(sys_config().wifi_ssid, sys_config().wifi_password);
-    _packet_handler = std::make_unique<AppPacketHandler>(*this);
-    _ws_server = std::make_unique<WebSocketServer<__int::AppType>>(*this, *_packet_handler);
-    _mqtt_server = std::make_unique<MqttServer<__int::AppType>>(*this);
+    _ws_server = std::make_unique<WebSocketServer<PropertyEnum>>();
+    _mqtt_server = std::make_unique<MqttServer>();
 
     _motion_control = std::make_unique<MotionControl>(config());
 
-    event_property_changed().subscribe(this, [this](auto sender, auto type, auto) {
-        if (sender != this) _handle_property_change(type);
+    _metadata = std::make_unique<ConfigMetadata>(build_metadata(config(), motion_control()));
+
+    NotificationBus::get().subscribe([this](auto sender, auto prop) {
+        if (sender != this) update();
     });
 
     _timer.add_interval([this](auto) {
-        _ws_server->notify_clients(-1, PropertyEnum::MOTION_STATE, motion_control().state());
-        _ws_server->notify_clients(-1, PropertyEnum::MOTION_SILENCE_TIME_LEFT,
-                                   motion_control().silence_time_left());
-    }, 10000);
+        _ws_server->send_notification(PropertyEnum::MOTION_STATE);
+        _ws_server->send_notification(PropertyEnum::MOTION_SILENCE_TIME_LEFT);
+    }, STATE_NOTIFICATION_INTERVAL);
 
     _motion_control->event().subscribe(this, [this](auto, auto type, auto) {
-        switch (type) {
-            case MotionEventType::STATE_CHANGED:
-                return _ws_server->notify_clients(-1, PropertyEnum::MOTION_STATE, motion_control().state());
-            case MotionEventType::SILENCE_TIME_LEFT_CHANGED:
-                return _ws_server->notify_clients(-1, PropertyEnum::MOTION_SILENCE_TIME_LEFT, motion_control().silence_time_left());
+        _handle_motion_sensor_event(type);
+    });
+
+    _metadata->visit([this](AbstractPropertyMeta *meta) {
+        auto binary_protocol = (BinaryProtocolMeta<PropertyEnum> *) meta->get_binary_protocol();
+        if (binary_protocol->packet_type.has_value()) {
+            _ws_server->register_parameter(*binary_protocol->packet_type, meta->get_parameter());
+            VERBOSE(D_PRINTF("WebSocket: Register property %s\r\n", __debug_enum_str(*binary_protocol->packet_type)));
+        }
+
+        auto mqtt_protocol = meta->get_mqtt_protocol();
+        if (mqtt_protocol->topic_in && mqtt_protocol->topic_out) {
+            _mqtt_server->register_parameter(mqtt_protocol->topic_in, mqtt_protocol->topic_out, meta->get_parameter());
+            VERBOSE(D_PRINTF("MQTT: Register property %s <-> %s\r\n", mqtt_protocol->topic_in, mqtt_protocol->topic_out));
+        } else if (mqtt_protocol->topic_out) {
+            _mqtt_server->register_notification(mqtt_protocol->topic_out, meta->get_parameter());
+            VERBOSE(D_PRINTF("MQTT: Register notification -> %s\r\n", mqtt_protocol->topic_out));
         }
     });
+
+    _ws_server->register_data_request(PropertyEnum::GET_STATE, _metadata->generated.app_state);
+
+    _ws_server->register_notification(PropertyEnum::MOTION_STATE, _metadata->generated.sensor_state);
+    _ws_server->register_notification(PropertyEnum::MOTION_SILENCE_TIME_LEFT, _metadata->generated.sensor_silence_time_left);
+
+    _ws_server->register_command(PropertyEnum::SILENCE, std::bind(&MotionControl::silence_add, &motion_control()));
+    _ws_server->register_command(PropertyEnum::SILENCE_RESET, std::bind(&MotionControl::silence_reset, &motion_control()));
+    _ws_server->register_command(PropertyEnum::TEST, std::bind(&MotionControl::alarm_test, &motion_control()));
+
+    _ws_server->register_data_request((PropertyEnum) SystemPacketTypeEnum::GET_CONFIG, _metadata->data.config);
+    _ws_server->register_command((PropertyEnum) SystemPacketTypeEnum::RESTART, std::bind(&Application::restart, this));
 }
 
 void Application::update() {
@@ -85,7 +108,7 @@ void Application::event_loop() {
 
             _timer.handle_timers();
 
-            _ws_server->handle_incoming_data();
+            _ws_server->handle_connection();
             _mqtt_server->handle_connection();
 
             _motion_control->tick();
@@ -123,32 +146,15 @@ void Application::restart() {
     _timer.add_timeout([](auto) { ESP.restart(); }, RESTART_DELAY);
 }
 
-void Application::_handle_property_change(PropertyEnum type) {
-    update();
-}
+void Application::_handle_motion_sensor_event(MotionEventType type) {
+    switch (type) {
+        case MotionEventType::STATE_CHANGED:
+            _ws_server->send_notification(PropertyEnum::MOTION_STATE);
+            _mqtt_server->send_notification(MQTT_OUT_TOPIC_ALARM);
+            break;
 
-
-Response AppPacketHandler::handle_packet_data(uint32_t client_id, const Packet<PacketHandler<Application>::PacketEnumT> &packet) {
-    auto &app = (Application &) this->app();
-
-    if (packet.header->type == PropertyEnum::SILENCE) {
-        app.motion_control().silence_add();
-        return Response::ok();
-    } else if (packet.header->type == PropertyEnum::SILENCE_RESET) {
-        app.motion_control().silence_reset();
-        return Response::ok();
-    } else if (packet.header->type == PropertyEnum::TEST) {
-        app.motion_control().alarm_test();
-        return Response::ok();
-    } else if (packet.header->type == PropertyEnum::GET_STATE) {
-        static AppState state_obj;
-        state_obj = {
-                app.motion_control().state(),
-                app.motion_control().silence_time_left(),
-        };
-
-        return protocol().serialize(state_obj);
+        case MotionEventType::SILENCE_TIME_LEFT_CHANGED:
+            _ws_server->send_notification(PropertyEnum::MOTION_SILENCE_TIME_LEFT);
+            break;
     }
-
-    return PacketHandler::handle_packet_data(client_id, packet);
 }

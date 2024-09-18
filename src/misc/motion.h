@@ -3,6 +3,7 @@
 #include <Arduino.h>
 #include <memory>
 
+#include <lib/misc/event_topic.h>
 #include <lib/utils/enum.h>
 
 #include "type.h"

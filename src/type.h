@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-#include <lib/base/application.h>
+#include <lib/base/parameter.h>
 #include <lib/network/wifi.h>
 #include <lib/utils/enum.h>
 
@@ -49,16 +49,15 @@ MAKE_ENUM(PropertyEnum, uint8_t,
           GET_STATE, 0xa0,
 )
 
-MAKE_ENUM(MotionState, uint8_t,
-          IDLE, 0,
-          PANIC, 1,
-          SILENT, 2,
-          PAUSED, 3,
+MAKE_ENUM_AUTO(MotionState, uint8_t,
+               IDLE,
+               PANIC,
+               SILENT,
+               PAUSED,
 )
 
-typedef PropertyMetadata<PropertyEnum> AppPropertyMeta;
-
-typedef char __str[32];
+constexpr uint8_t STR_SIZE = 32;
+typedef char __str[STR_SIZE];
 
 struct __attribute((packed)) MotionConfig {
     uint8_t motion_pin = MOTION_PIN;
@@ -76,7 +75,7 @@ struct __attribute((packed)) MotionConfig {
 };
 
 struct __attribute((packed)) SysConfig {
-    __str mdns_name = {MSDN_NAME};
+    __str mdns_name = {MDNS_NAME};
 
     WifiMode wifi_mode = WIFI_MODE;
     __str wifi_ssid = {WIFI_SSID};
