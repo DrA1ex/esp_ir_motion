@@ -47,6 +47,7 @@ DECLARE_META(GeneratedConfigMeta, AppMetaProperty,
              MEMBER(GeneratedParameter<unsigned long>, sensor_silence_time_left),
 
              MEMBER(GeneratedParameter<uint8_t>, sensor_state_alarm),
+             MEMBER(GeneratedParameter<uint8_t>, sensor_state_pause),
 )
 
 DECLARE_META(ConfigMetadata, AppMetaProperty,
@@ -185,6 +186,12 @@ inline ConfigMetadata build_metadata(Config &config, MotionControl &motion_contr
                             MQTT_OUT_TOPIC_ALARM,
                             {([&]() -> uint8_t {
                                 return motion_control.state() == MotionState::PANIC ? 1 : 0;
+                            })}
+                    },
+                    .sensor_state_pause = {
+                            MQTT_OUT_TOPIC_PAUSE,
+                            {([&]() -> uint8_t {
+                                return motion_control.state() == MotionState::SILENT ? 1 : 0;
                             })}
                     },
             }

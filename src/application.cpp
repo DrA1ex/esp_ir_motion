@@ -86,6 +86,18 @@ void Application::_setup() {
 
     ws_server->register_data_request((PropertyEnum) SystemPacketTypeEnum::GET_CONFIG, _metadata->data.config);
     ws_server->register_command((PropertyEnum) SystemPacketTypeEnum::RESTART, [this] { _bootstrap->restart(); });
+
+    mqtt_server->register_command(MQTT_TOPIC_PAUSE, [this, &mqtt_server]() {
+        if (_motion_control->state() != MotionState::SILENT) {
+            _motion_control->silence_add();
+        } else {
+            _motion_control->silence_reset();
+        }
+
+        mqtt_server->send_notification(MQTT_OUT_TOPIC_PAUSE);
+    });
+
+    mqtt_server->register_notification(MQTT_OUT_TOPIC_PAUSE, _metadata->generated.sensor_state_pause);
 }
 
 void Application::_handle_motion_sensor_event(MotionEventType type) {
@@ -93,6 +105,7 @@ void Application::_handle_motion_sensor_event(MotionEventType type) {
         case MotionEventType::STATE_CHANGED:
             _bootstrap->ws_server()->send_notification(PropertyEnum::MOTION_STATE);
             _bootstrap->mqtt_server()->send_notification(MQTT_OUT_TOPIC_ALARM);
+            _bootstrap->mqtt_server()->send_notification(MQTT_OUT_TOPIC_PAUSE);
             break;
 
         case MotionEventType::SILENCE_TIME_LEFT_CHANGED:

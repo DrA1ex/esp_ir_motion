@@ -180,6 +180,8 @@ void MotionControl::silence_reset() {
 }
 
 void MotionControl::alarm_test() {
+    if (_state == MotionState::PAUSED) return;
+
     D_PRINT("Motion Control: Alarm Test");
     _change_state(MotionState::PANIC);
 }
