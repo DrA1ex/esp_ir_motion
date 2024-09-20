@@ -27,11 +27,9 @@
 #define BUTTON_PIN                              (7u)
 
 
-#define MQTT_PREFIX                             MDNS_NAME
+#define MQTT_PREFIX                             ""
 #define MQTT_TOPIC_POWER                        MQTT_PREFIX "/power"
-#define MQTT_TOPIC_SILENT                       MQTT_PREFIX "/silent"
 
 #define MQTT_OUT_PREFIX                         MQTT_PREFIX "/out"
 #define MQTT_OUT_TOPIC_POWER                    MQTT_OUT_PREFIX "/power"
-#define MQTT_OUT_TOPIC_SILENT                   MQTT_OUT_PREFIX "/silent"
 #define MQTT_OUT_TOPIC_ALARM                    MQTT_OUT_PREFIX "/alarm"
