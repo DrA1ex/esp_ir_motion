@@ -29,4 +29,6 @@ public:
 
     void play();
     void stop();
+
+    [[nodiscard]] inline bool initialized() const { return _initialized; }
 };

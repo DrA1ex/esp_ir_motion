@@ -105,7 +105,7 @@ inline ConfigMetadata build_metadata(Config &config, MotionControl &motion_contr
             .sys_config ={
                     .mdns_name ={
                             PropertyEnum::SYS_CONFIG_MDNS_NAME,
-                            {config.sys_config.mdns_name, STR_SIZE}
+                            {config.sys_config.mdns_name, CONFIG_STRING_SIZE}
                     },
                     .wifi_mode = {
                             PropertyEnum::SYS_CONFIG_WIFI_MODE,
@@ -113,11 +113,11 @@ inline ConfigMetadata build_metadata(Config &config, MotionControl &motion_contr
                     },
                     .wifi_ssid = {
                             PropertyEnum::SYS_CONFIG_WIFI_SSID,
-                            {config.sys_config.wifi_ssid, STR_SIZE}
+                            {config.sys_config.wifi_ssid, CONFIG_STRING_SIZE}
                     },
                     .wifi_password = {
                             PropertyEnum::SYS_CONFIG_WIFI_PASSWORD,
-                            {config.sys_config.wifi_password, STR_SIZE}
+                            {config.sys_config.wifi_password, CONFIG_STRING_SIZE}
                     },
                     .wifi_connection_timeout = {
                             PropertyEnum::SYS_CONFIG_WIFI_CONNECTION_TIMEOUT,
@@ -129,7 +129,7 @@ inline ConfigMetadata build_metadata(Config &config, MotionControl &motion_contr
                     },
                     .mqtt_host = {
                             PropertyEnum::SYS_CONFIG_MQTT_HOST,
-                            {config.sys_config.mqtt_host, STR_SIZE}
+                            {config.sys_config.mqtt_host, CONFIG_STRING_SIZE}
                     },
                     .mqtt_port = {
                             PropertyEnum::SYS_CONFIG_MQTT_PORT,
@@ -137,11 +137,11 @@ inline ConfigMetadata build_metadata(Config &config, MotionControl &motion_contr
                     },
                     .mqtt_user = {
                             PropertyEnum::SYS_CONFIG_MQTT_USER,
-                            {config.sys_config.mqtt_user, STR_SIZE}
+                            {config.sys_config.mqtt_user, CONFIG_STRING_SIZE}
                     },
                     .mqtt_password = {
                             PropertyEnum::SYS_CONFIG_MQTT_PASSWORD,
-                            {config.sys_config.mqtt_password, STR_SIZE}
+                            {config.sys_config.mqtt_password, CONFIG_STRING_SIZE}
                     },
                     .buzz_time = {
                             PropertyEnum::SYS_CONFIG_BUZZ_TIME,
@@ -183,7 +183,7 @@ inline ConfigMetadata build_metadata(Config &config, MotionControl &motion_contr
 
                     .sensor_state_alarm = {
                             MQTT_OUT_TOPIC_ALARM,
-                            {([&] {
+                            {([&]() -> uint8_t {
                                 return motion_control.state() == MotionState::PANIC ? 1 : 0;
                             })}
                     },

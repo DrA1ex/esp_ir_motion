@@ -2,7 +2,7 @@
 
 #include "application.h"
 
-Application *App;
+Application ApplicationInstance;
 
 void setup() {
 #ifdef DEBUG
@@ -24,16 +24,9 @@ void setup() {
     analogWriteFrequency(PWM_FREQUENCY);
 #endif
 
-    D_PRINT("Starting application...");
-
-    if (!LittleFS.begin()) {
-        D_PRINT("Unable to initialize FS");
-    }
-
-    App = new Application(&LittleFS);
-    App->begin();
+    ApplicationInstance.begin();
 }
 
 void loop() {
-    App->event_loop();
+    ApplicationInstance.event_loop();
 }

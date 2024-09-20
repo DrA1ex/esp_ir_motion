@@ -47,6 +47,7 @@ public:
 
     void tick(unsigned long time);
 
+    [[nodiscard]] inline bool initialized() const { return _initialized; }
     [[nodiscard]] inline bool active() const { return _active; }
     [[nodiscard]] inline uint8_t blink_count() const { return _blink_count; }
     [[nodiscard]] inline unsigned long flash_duration() const { return _flash_duration; }

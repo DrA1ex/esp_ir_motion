@@ -2,12 +2,14 @@
 
 #include <cstdint>
 
+#include <lib/bootstrap.h>
 #include <lib/base/parameter.h>
 #include <lib/network/wifi.h>
 #include <lib/utils/enum.h>
 
 #include "credentials.h"
 #include "constants.h"
+#include "sys_constants.h"
 
 MAKE_ENUM(PropertyEnum, uint8_t,
           POWER, 0x00,
@@ -56,9 +58,6 @@ MAKE_ENUM_AUTO(MotionState, uint8_t,
                PAUSED,
 )
 
-constexpr uint8_t STR_SIZE = 32;
-typedef char __str[STR_SIZE];
-
 struct __attribute((packed)) MotionConfig {
     uint8_t motion_pin = MOTION_PIN;
 
@@ -74,20 +73,22 @@ struct __attribute((packed)) MotionConfig {
     uint8_t button_pin = BUTTON_PIN;
 };
 
+typedef char ConfigString[CONFIG_STRING_SIZE];
+
 struct __attribute((packed)) SysConfig {
-    __str mdns_name = {MDNS_NAME};
+    ConfigString mdns_name = {MDNS_NAME};
 
     WifiMode wifi_mode = WIFI_MODE;
-    __str wifi_ssid = {WIFI_SSID};
-    __str wifi_password = {WIFI_PASSWORD};
+    ConfigString wifi_ssid = {WIFI_SSID};
+    ConfigString wifi_password = {WIFI_PASSWORD};
 
     uint32_t wifi_connection_timeout = WIFI_CONNECTION_TIMEOUT;
 
     bool mqtt_enabled = MQTT_ENABLED;
-    __str mqtt_host = {MQTT_HOST};
+    ConfigString mqtt_host = {MQTT_HOST};
     uint16_t mqtt_port = MQTT_PORT;
-    __str mqtt_user = {MQTT_USER};
-    __str mqtt_password = {MQTT_PASSWORD};
+    ConfigString mqtt_user = {MQTT_USER};
+    ConfigString mqtt_password = {MQTT_PASSWORD};
 
     uint16_t buzz_time = BUZZ_TIME;
     uint32_t silent_time = SILENT_TIME;
@@ -101,7 +102,6 @@ struct __attribute((packed)) Config {
     MotionConfig motion_config{};
     SysConfig sys_config{};
 };
-
 
 struct __attribute((packed)) AppState {
     MotionState state;

@@ -13,3 +13,5 @@
 
 #define PWM_RESOLUTION                          (8u)
 #define PWM_FREQUENCY                           (22000u)
+
+#define CONFIG_STRING_SIZE                      (32u)

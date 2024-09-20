@@ -145,7 +145,7 @@ void MotionControl::tick() {
         case MotionState::SILENT: {
             auto level = (int) ((_silence_time - delta - 1) / _config.sys_config.silent_time) + 1;
 
-            if (!_led->active() || _led->blink_count() != level) {
+            if (_led->initialized() && (!_led->active() || _led->blink_count() != level)) {
                 D_PRINTF("Motion Control: time left (sec) %lu\r\n", (_silence_time - delta) / 1000);
 
                 _led->blink(level, true);
@@ -156,8 +156,8 @@ void MotionControl::tick() {
             break;
     }
 
-    if (_config.motion_config.buzzer_enabled) _buzzer->tick(time);
-    if (_config.motion_config.led_enabled) _led->tick(time);
+    if (_buzzer->initialized()) _buzzer->tick(time);
+    if (_led->initialized()) _led->tick(time);
 }
 
 void MotionControl::silence_add() {
