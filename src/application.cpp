@@ -80,21 +80,24 @@ void Application::_setup() {
     ws_server->register_notification(PropertyEnum::MOTION_STATE, _metadata->generated.sensor_state);
     ws_server->register_notification(PropertyEnum::MOTION_SILENCE_TIME_LEFT, _metadata->generated.sensor_silence_time_left);
 
-    ws_server->register_command(PropertyEnum::SILENCE, std::bind(&MotionControl::silence_add, _motion_control));
-    ws_server->register_command(PropertyEnum::SILENCE_RESET, std::bind(&MotionControl::silence_reset, _motion_control));
-    ws_server->register_command(PropertyEnum::TEST, std::bind(&MotionControl::alarm_test, _motion_control));
+    ws_server->register_command(PropertyEnum::SILENCE, [this] { _motion_control->silence_add(); });
+    ws_server->register_command(PropertyEnum::SILENCE_RESET, [this] { _motion_control->silence_reset(); });
+    ws_server->register_command(PropertyEnum::TEST, [this] { _motion_control->alarm_test(); });
 
     ws_server->register_data_request((PropertyEnum) SystemPacketTypeEnum::GET_CONFIG, _metadata->data.config);
     ws_server->register_command((PropertyEnum) SystemPacketTypeEnum::RESTART, [this] { _bootstrap->restart(); });
 
-    mqtt_server->register_command(MQTT_TOPIC_PAUSE, [this, &mqtt_server]() {
+    mqtt_server->register_command(MQTT_TOPIC_PAUSE, [this] {
         if (_motion_control->state() != MotionState::SILENT) {
             _motion_control->silence_add();
         } else {
             _motion_control->silence_reset();
         }
+    });
 
-        mqtt_server->send_notification(MQTT_OUT_TOPIC_PAUSE);
+    mqtt_server->register_command(MQTT_TOPIC_SILENT, [this](const String &payload) {
+        auto value = payload.toInt();
+        _motion_control->silence_set(value > 0 ? value : _bootstrap->config().sys_config.silent_time / 1000);
     });
 
     mqtt_server->register_notification(MQTT_OUT_TOPIC_PAUSE, _metadata->generated.sensor_state_pause);

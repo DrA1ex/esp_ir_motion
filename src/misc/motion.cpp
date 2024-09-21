@@ -146,7 +146,7 @@ void MotionControl::tick() {
             auto level = (int) ((_silence_time - delta - 1) / _config.sys_config.silent_time) + 1;
 
             if (_led->initialized() && (!_led->active() || _led->blink_count() != level)) {
-                D_PRINTF("Motion Control: time left (sec) %lu\r\n", (_silence_time - delta) / 1000);
+                D_PRINTF("Motion Control: Silence time left (sec) %lu\r\n", (_silence_time - delta) / 1000);
 
                 _led->blink(level, true);
             }
@@ -164,10 +164,10 @@ void MotionControl::silence_add() {
     if (_state == MotionState::PAUSED) return;
 
     D_PRINT("Motion Control: Add Silence");
-    _change_state(MotionState::SILENT);
 
     _silence_level += 1;
     _silence_time = _silence_level * _config.sys_config.silent_time;
+    _change_state(MotionState::SILENT);
 
     event().publish(this, MotionEventType::SILENCE_TIME_LEFT_CHANGED);
 }
@@ -184,4 +184,18 @@ void MotionControl::alarm_test() {
 
     D_PRINT("Motion Control: Alarm Test");
     _change_state(MotionState::PANIC);
+}
+
+void MotionControl::silence_set(uint32_t sec) {
+    if (_state == MotionState::PAUSED) return;
+
+
+    auto ms = sec * 1000;
+    _silence_level = std::max<uint32_t>(1, ms / _config.sys_config.silent_time);
+    _silence_time = ms;
+
+    D_PRINTF("Motion Control: Set silence for %u sec.\r\n", sec);
+    _change_state(MotionState::SILENT);
+
+    event().publish(this, MotionEventType::SILENCE_TIME_LEFT_CHANGED);
 }

@@ -31,6 +31,7 @@ public:
     void begin();
     void tick();
 
+    void silence_set(uint32_t sec);
     void silence_add();
     void silence_reset();
     void alarm_test();
