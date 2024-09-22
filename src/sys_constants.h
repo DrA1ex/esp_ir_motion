@@ -10,6 +10,7 @@
 #define LED_BLINK_COOL_DOWN_DURATION            (3000ul)
 
 #define BUZZER_TONE_INTERVAL                    (10u)
+#define APP_LOOP_INTERVAL                       (10u)
 
 #define PWM_RESOLUTION                          (8u)
 #define PWM_FREQUENCY                           (22000u)

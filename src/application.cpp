@@ -26,18 +26,22 @@ void Application::begin() {
     _motion_control = new MotionControl(_bootstrap->config());
     _motion_control->begin();
 
+    _bootstrap->event_state_changed().subscribe(this, BootstrapState::READY, [this](auto, auto, auto) {
+        if (_initialized) return;
+
+        _bootstrap->timer().add_interval([this](auto) {
+            _motion_control->tick();
+        }, APP_LOOP_INTERVAL);
+
+        D_PRINT("Application initialized");
+        _initialized = true;
+    });
+
     _setup();
-    _initialized = true;
 }
 
 void Application::event_loop() {
-    if (!_initialized) return;
-
-    auto state = _bootstrap->event_loop();
-
-    if (state == BootstrapState::READY) {
-        _motion_control->tick();
-    }
+    _bootstrap->event_loop();
 }
 
 void Application::_setup() {

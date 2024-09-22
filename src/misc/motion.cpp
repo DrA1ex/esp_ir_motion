@@ -33,7 +33,7 @@ void MotionControl::begin() {
     }
 
     D_PRINT("Motion Control: Initialized");
-    _change_state(MotionState::IDLE);
+    _change_state(_config.power ? MotionState::IDLE : MotionState::PAUSED);
 }
 
 void MotionControl::_button_clicked(uint8_t count) {
