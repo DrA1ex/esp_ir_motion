@@ -321,6 +321,10 @@ export class ApplicationBase extends EventEmitter {
                         control = control = new InputControl(document.createElement("input"), InputType.int);
                         break;
 
+                    case "float":
+                        control = control = new InputControl(document.createElement("input"), InputType.float);
+                        break;
+
                     case "text":
                         control = new InputControl(document.createElement("input"), InputType.text);
                         control.setMaxLength(prop.maxLength ?? 255);
@@ -458,7 +462,7 @@ export class ApplicationBase extends EventEmitter {
 
         prop.__busy = true;
         try {
-            if (prop.type !== "wheel") control.setAttribute("data-saving", "true");
+            if (!["wheel", "color"].includes(prop.type)) control.setAttribute("data-saving", "true");
 
             if (Array.isArray(prop.cmd)) {
                 await this.#ws.request(value ? prop.cmd[0] : prop.cmd[1]);
@@ -525,7 +529,7 @@ export class ApplicationBase extends EventEmitter {
             control.setValue(oldValue);
         } finally {
             prop.__busy = false;
-            if (prop.type !== "wheel") control.setAttribute("data-saving", "false");
+            if (!["wheel", "color"].includes(prop.type)) control.setAttribute("data-saving", "false");
         }
     }
 }
