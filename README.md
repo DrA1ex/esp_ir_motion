@@ -4,15 +4,19 @@ Smart IR Motion Sensor based on ESP32/ESP8266
 
 ## UI
 
-<img width="454" alt="image" src="https://github.com/user-attachments/assets/74e611aa-806a-4f24-8b23-0de276ac219f">
+![UI](https://github.com/user-attachments/assets/74e611aa-806a-4f24-8b23-0de276ac219f)
 
 
 ## Features
-[TODO]
+- Web/Mobile Application (PWA)
+- Optional sound and visual (LED) alerting
+- Integration with any Smart Home Assistant (such as Alise) via MQTT broker
+- MQTT Protocol
 
 ## Connection
 
-[TODO]
+![Schematic](https://github.com/user-attachments/assets/268893e3-76d1-4b24-b517-b7de0e2e3fee)
+
 
 ## Installation
 
