@@ -57,10 +57,12 @@ pio run -t upload -e $PLATFORM-$ENV --upload-port "$ADDRESS"
 
 | Topic In *       			| Topic Out *          			| Type        | Values		         | Comments                              |
 |---------------------------|-------------------------------|-------------|----------------------|---------------------------------------|
-| `MQTT_TOPIC_POWER`		| `MQTT_OUT_TOPIC_POWER` 		| `uint8_t`   | 0..1      	     	 | Power _state: ON (1) / OFF (0)         |
+| `MQTT_TOPIC_POWER`		| `MQTT_OUT_TOPIC_POWER` 		| `uint8_t`   | 0..1      	     	 | Power state: ON (1) / OFF (0)         |
+| `MQTT_TOPIC_PAUSE`		| `MQTT_OUT_TOPIC_PAUSE` 		| `uint8_t`   | 0..1      	     	 | Trigger Silent mode (default time)    |
+| `MQTT_TOPIC_SILENT`       |                      	    	| `uint32_t`  | duration in seconds  | Set Silent mode for custom time       |
+|                   		| `MQTT_OUT_TOPIC_ALARM` 	   	| `uint8_t`   | 0..1                 | Indicates alarm state                 |
 
 \* Actual topic values decalred in `constants.h`
-
 
 ## Misc
 
