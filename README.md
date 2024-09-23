@@ -4,7 +4,7 @@ Smart IR Motion Sensor based on ESP32/ESP8266
 
 ## UI
 
-![UI](https://github.com/user-attachments/assets/74e611aa-806a-4f24-8b23-0de276ac219f)
+<img width="400" alt="image" src="https://github.com/user-attachments/assets/74e611aa-806a-4f24-8b23-0de276ac219f">
 
 
 ## Features
@@ -15,7 +15,7 @@ Smart IR Motion Sensor based on ESP32/ESP8266
 
 ## Connection
 
-![Schematic](https://github.com/user-attachments/assets/268893e3-76d1-4b24-b517-b7de0e2e3fee)
+<img width="500" alt="image" src="https://github.com/user-attachments/assets/268893e3-76d1-4b24-b517-b7de0e2e3fee">
 
 
 ## Installation
