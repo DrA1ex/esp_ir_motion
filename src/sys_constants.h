@@ -16,3 +16,10 @@
 #define PWM_FREQUENCY                           (22000u)
 
 #define CONFIG_STRING_SIZE                      (32u)
+
+#define MOTION_LED_ACTIVE_COLOR                 (Color{64, 0, 0})
+#define MOTION_LED_SILENT_COLOR                 (Color{0, 3, 0})
+
+#define MOTION_LED_PANIC_COLORS                 {Color{255, 0, 0}, Color{0, 255, 0}, Color{0, 0, 255}}
+
+#define MOTION_ALARM_MELODY                     {Note{650,  250}, Note{1350, 250}}

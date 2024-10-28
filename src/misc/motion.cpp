@@ -3,10 +3,7 @@
 #include "lib/debug.h"
 
 //TODO: Configurable
-Note melody[] = {
-        {650,  250},
-        {1350, 250},
-};
+Note melody[] = MOTION_ALARM_MELODY;
 
 MotionControl::MotionControl(const Config &config) : _config(config) {}
 
@@ -72,7 +69,7 @@ void MotionControl::_change_state(MotionState next_state) {
         _buzzer->play(BUZZER_SMOOTH_PLAYING);
         _led->flash();
     } else if (next_state == MotionState::SILENT) {
-        _led->set_color(0, 3, 0);
+        _led->set_color(MOTION_LED_SILENT_COLOR);
         _led->flash(LED_BLINK_COOL_DOWN_DURATION);
     } else {
         _led->turn_off();
@@ -131,17 +128,16 @@ void MotionControl::tick() {
             if (delta >= _config.sys_config.idle_flash_time) {
                 _last_time = time;
 
-                _led->set_color(64, 0, 0);
+                _led->set_color(MOTION_LED_ACTIVE_COLOR);
                 _led->blink();
             }
             break;
 
-        case MotionState::PANIC:
-            if ((delta / _config.sys_config.panic_color_time) % 2) {
-                _led->set_color(255, 0, 0);
-            } else {
-                _led->set_color(0, 0, 255);
-            }
+        case MotionState::PANIC: {
+            constexpr Color colors[] = MOTION_LED_PANIC_COLORS;
+            auto index = (delta / _config.sys_config.panic_color_time) % (std::size(colors));
+            _led->set_color(colors[index]);
+        }
             break;
 
         case MotionState::SILENT: {

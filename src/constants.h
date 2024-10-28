@@ -17,6 +17,7 @@
 
 #define BUZZER_ENABLED                          (true)
 #define BUZZER_PIN                              (3u)
+#define BUZZER_SMOOTH_PLAYING                   (true)
 
 #define LED_ENABLED                             (1u)
 #define LED_R_PIN                               (2u)
