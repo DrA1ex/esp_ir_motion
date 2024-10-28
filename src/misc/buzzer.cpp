@@ -8,9 +8,10 @@ void Buzzer::begin() {
     pinMode(_pin, OUTPUT);
 }
 
-void Buzzer::play() {
+void Buzzer::play(bool smooth) {
     if (!_initialized || _playing) return;
 
+    _smooth = smooth;
     _start_time = millis();
     _playing = true;
     _current_note = 0;
@@ -31,7 +32,8 @@ void Buzzer::tick(unsigned long time) {
     auto delta = time - _start_time;
     auto cursor = _melody[_current_note];
 
-    if (delta >= cursor.duration) {
+    bool note_changed = delta >= cursor.duration;
+    if (note_changed) {
         _start_time = time - (delta - cursor.duration);
         delta = time - _start_time;
 
@@ -39,10 +41,18 @@ void Buzzer::tick(unsigned long time) {
         cursor = _melody[_current_note];
     }
 
-    auto next_cursor = _melody[(_current_note + 1) % _melody_length];
+    if (cursor.frequency == 0) {
+        noTone(_pin);
+        return;
+    }
 
-    auto freq_diff = next_cursor.frequency - cursor.frequency;
-    auto new_freq = cursor.frequency + freq_diff * (long) delta / cursor.duration;
+    if (_smooth) {
+        auto next_cursor = _melody[(_current_note + 1) % _melody_length];
+        auto freq_diff = next_cursor.frequency - cursor.frequency;
+        auto new_freq = cursor.frequency + freq_diff * (long) delta / cursor.duration;
 
-    tone(_pin, (int) new_freq);
+        tone(_pin, new_freq);
+    } else if (note_changed) {
+        tone(_pin, cursor.frequency);
+    }
 }

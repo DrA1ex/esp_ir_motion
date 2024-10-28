@@ -3,7 +3,7 @@
 #include "lib/debug.h"
 
 //TODO: Configurable
-Note Melody[] = {
+Note melody[] = {
         {650,  250},
         {1350, 250},
 };
@@ -14,7 +14,7 @@ void MotionControl::begin() {
     auto motion_cfg = _config.motion_config;
 
     _buzzer = std::make_unique<Buzzer>(
-            motion_cfg.buzzer_pin, Melody, sizeof(Melody) / sizeof(Melody[0]));
+            motion_cfg.buzzer_pin, melody, std::size(melody));
 
     _led = std::make_unique<Led>(motion_cfg.led_r_pin,
                                  motion_cfg.led_g_pin,
@@ -55,6 +55,7 @@ void MotionControl::_button_hold(uint8_t) {
     D_PRINT("Motion Control: Button reset");
     _change_state(MotionState::IDLE);
 }
+
 void MotionControl::_change_state(MotionState next_state) {
     if (next_state == _state) return;
 
@@ -68,7 +69,7 @@ void MotionControl::_change_state(MotionState next_state) {
     }
 
     if (next_state == MotionState::PANIC) {
-        _buzzer->play();
+        _buzzer->play(BUZZER_SMOOTH_PLAYING);
         _led->flash();
     } else if (next_state == MotionState::SILENT) {
         _led->set_color(0, 3, 0);
@@ -84,6 +85,7 @@ void MotionControl::_change_state(MotionState next_state) {
 
     event().publish(this, MotionEventType::STATE_CHANGED);
 }
+
 void MotionControl::_state_machine(unsigned long time) {
     auto delta = time - _last_time;
 

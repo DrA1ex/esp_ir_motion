@@ -19,6 +19,7 @@ class Buzzer {
     unsigned long _start_time = 0;
     size_t _current_note = 0;
 
+    bool _smooth = false;
     unsigned long _last_tone_update = 0;
 
 public:
@@ -27,7 +28,7 @@ public:
     void begin();
     void tick(unsigned long time);
 
-    void play();
+    void play(bool smooth = false);
     void stop();
 
     [[nodiscard]] inline bool initialized() const { return _initialized; }

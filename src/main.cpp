@@ -1,8 +1,10 @@
 #include <LittleFS.h>
 
+#include "sys_constants.h"
+#include "constants.h"
 #include "application.h"
 
-Application ApplicationInstance;
+Application application_instance;
 
 void setup() {
 #ifdef DEBUG
@@ -24,9 +26,9 @@ void setup() {
     analogWriteFrequency(PWM_FREQUENCY);
 #endif
 
-    ApplicationInstance.begin();
+    application_instance.begin();
 }
 
 void loop() {
-    ApplicationInstance.event_loop();
+    application_instance.event_loop();
 }
